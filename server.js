@@ -15,9 +15,9 @@ const buildServer = () => {
     logger: true
   });
 
-  fastify.register(require('./routes/policyRoutes'), { prefix: '/api/v1'});
+  fastify.register(require('./routes/policyRoutes'), { prefix: '/api/v1' });
 
   return fastify;
-}
+};
 
 start();

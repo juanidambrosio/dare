@@ -1,7 +1,14 @@
-async function routes(fastify) {
-  fastify.get('/policies', async (request, reply) => {
-    return reply.code(200).send({ message: 'This is your policy!' });
-  });
-}
 
-module.exports = routes;
+module.exports = insuranceClient => {
+  return async function routes(fastify) {
+    fastify.get('/policies', async (request, reply) => {
+      return insuranceClient.executeEndpoint(
+        insuranceClient.getPolicies
+      )
+        .then(response => reply.code(200).send(response.data))
+        .catch(error => {
+          return reply.code(error.statusCode || 500).send(error);
+        });
+    });
+  };
+};

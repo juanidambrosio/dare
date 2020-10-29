@@ -10,7 +10,7 @@ const _ = require('lodash');
 const getClientById = insuranceClient => async (id) => {
   let item = getByIdFromCache(id, 'c');
   if (item) {
-    return mapItems([item]);
+    return mapClients([item]);
   }
   else {
     const items = await insuranceClient.executeEndpoint(
@@ -18,7 +18,7 @@ const getClientById = insuranceClient => async (id) => {
     );
     item = items.find(item => item.id === id);
     saveInCache(items, 'c');
-    return item ? mapItems([item]) : createError(404);
+    return item ? mapClients([item]) : createError(404);
   }
 };
 
@@ -30,10 +30,25 @@ const getClients = insuranceClient => async () => {
     );
     saveInCache(items, 'c');
   }
-  return mapItems(items);
+  return mapClients(items);
 };
 
-const mapItems = items => {
+const getClientPolicies = insuranceClient => async id => {
+  let item = getByIdFromCache(id, 'c');
+  if (item) {
+    return mapClientPolicies(item);
+  }
+  else {
+    const items = await insuranceClient.executeEndpoint(
+      insuranceClient.getClients
+    );
+    item = items.find(item => item.id === id);
+    saveInCache(items, 'c');
+    return item ? mapClientPolicies(item) : createError(404);
+  }
+};
+
+const mapClients = items => {
   return items.map(item => {
     return {
       ...item,
@@ -44,9 +59,14 @@ const mapItems = items => {
     };});
 };
 
+const mapClientPolicies = item => {
+  return removeProperties(item.policies, ['clientId']);
+};
+
 module.exports = insuranceClient => {
   return {
     getClientById: getClientById(insuranceClient),
-    getClients: getClients(insuranceClient)
+    getClients: getClients(insuranceClient),
+    getClientPolicies: getClientPolicies(insuranceClient)
   };
 };

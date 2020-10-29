@@ -22,6 +22,14 @@ async function routes(fastify) {
         return reply.code(error.code || 500).send(error);
       });
   });
+
+  fastify.get('/clients/:id/policies', async (request, reply) => {
+    return getClientPolicies(request.params.id)
+      .then(savedItem => reply.code(200).send(savedItem))
+      .catch(error => {
+        return reply.code(error.code || 500).send(error);
+      });
+  });
 }
 
 module.exports = routes;

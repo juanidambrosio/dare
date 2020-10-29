@@ -16,8 +16,7 @@ const getItemById = id => {
 
 const getAllFromCache = entity => {
   const keys = cache.keys().filter(key => key.slice(0,1) == entity);
-  const items = keys.map(key => cache.get(key));
-  return items;
+  return keys.map(key => cache.get(key));
 };
 
 const getByIdFromCache = (id, entity) => {

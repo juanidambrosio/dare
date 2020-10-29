@@ -2,6 +2,7 @@
 const axios = require('axios');
 const config = require('../config/config');
 const { createError } = require('../helpers/error');
+const { mapClients } = require('../helpers/normalizer');
 
 let instance;
 
@@ -44,11 +45,19 @@ const login = async () => {
 };
 
 const getPolicies = async () => {
-  return await instance.get('/policies');
+  const { data } = await instance.get('/policies');
+  return data;
+};
+
+const getClients = async () => {
+  const clients = await instance.get('/clients');
+  const policies = await instance.get('/policies');
+  return mapClients(clients.data, policies.data);
 };
 
 module.exports = {
   createInstance,
   executeEndpoint,
-  getPolicies
+  getPolicies,
+  getClients
 };

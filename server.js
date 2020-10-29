@@ -15,10 +15,7 @@ const buildServer = () => {
     logger: true
   });
 
-  const insuranceClient = require('./services/insuranceClient');
-  insuranceClient.createInstance();
-
-  fastify.register(require('./routes/policyRoutes')(insuranceClient),
+  fastify.register(require('./routes/policyRoutes'),
     { prefix: '/api/v1' });
 
   return fastify;

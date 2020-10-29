@@ -1,6 +1,7 @@
 /* eslint-disable no-unsafe-finally */
 const axios = require('axios');
 const config = require('../config/config');
+const { createError } = require('../helpers/error');
 
 let instance;
 
@@ -11,31 +12,25 @@ const createInstance = () => {
   });
 };
 
-const executeEndpoint = async (endpointFn, params, retries = 3) => {
+const executeEndpoint = async (endpointFn, retries = 3) => {
   let token, response;
   try {
-    response = await endpointFn(params);
+    response = await endpointFn();
   }
   catch (error) {
     if (error.response.status === 401) {
       token = await login();
       instance.defaults.headers.common['Authorization'] = `Bearer ${token}`;
     }
-    else if (retries === 0) {
-      throw {
-        statusCode: 403,
-        error: 'Forbidden',
-        message: 'Could not access to Insurance API'
-      };
-    }
   }
   finally {
-    if (!response && retries > 0){
-      return await executeEndpoint(endpointFn, params, retries - 1);
-    }
-    else if (response) {
+    if (response) {
       return response;
     }
+    else if (!response && retries > 0){
+      return await executeEndpoint(endpointFn, retries - 1);
+    }
+    else createError(401);
   }
 };
 
@@ -54,7 +49,6 @@ const getPolicies = async () => {
 
 module.exports = {
   createInstance,
-  login,
-  getPolicies,
-  executeEndpoint
+  executeEndpoint,
+  getPolicies
 };

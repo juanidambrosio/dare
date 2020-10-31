@@ -7,6 +7,15 @@ const {
 
 async function routes(fastify) {
   insuranceClient.createInstance();
+
+  fastify.addHook('onRequest', async (request, reply) => {
+    try {
+      await request.jwtVerify();
+    } catch (err) {
+      reply.code(401).send(err);
+    }
+  });
+
   fastify.get('/clients', async (request, reply) => {
     return getClients()
       .then(savedItems => reply.code(200).send(savedItems))

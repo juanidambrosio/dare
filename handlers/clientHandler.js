@@ -22,15 +22,37 @@ const getClientById = insuranceClient => async (id) => {
   }
 };
 
-const getClients = insuranceClient => async () => {
-  let items = getAllFromCache('c');
+const getClients = insuranceClient => async query => {
+
+  let items = getAllFromCache('c', query);
   if (_.isEmpty(items)) {
     items = await insuranceClient.executeEndpoint(
       insuranceClient.getClients
     );
     saveInCache(items, 'c');
   }
-  return mapClients(items);
+  const paginatedClients = applyFilters(items, query);
+  return mapClients(paginatedClients);
+};
+
+const applyFilters = (items, query) => {
+  const { limit, name } = query;
+  const itemsAfterNameFilter = name ?
+    items.filter(item => item.name === name) :
+    items;
+
+  return itemsAfterNameFilter.slice(0, limit);
+};
+
+const mapClients = items => {
+  return items.map(item => {
+    return {
+      ...item,
+      policies: removeProperties(
+        item.policies,
+        ['email', 'installmentPayment', 'clientId']
+      )
+    };});
 };
 
 const getClientPolicies = insuranceClient => async id => {
@@ -46,17 +68,6 @@ const getClientPolicies = insuranceClient => async id => {
     saveInCache(items, 'c');
     return item ? mapClientPolicies(item) : createError(404);
   }
-};
-
-const mapClients = items => {
-  return items.map(item => {
-    return {
-      ...item,
-      policies: removeProperties(
-        item.policies,
-        ['email', 'installmentPayment', 'clientId']
-      )
-    };});
 };
 
 const mapClientPolicies = item => {

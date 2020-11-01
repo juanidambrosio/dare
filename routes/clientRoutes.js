@@ -17,7 +17,12 @@ async function routes(fastify) {
   });
 
   fastify.get('/clients', async (request, reply) => {
-    return getClients()
+    const queryString = {
+      limit: request.query.limit ? Number(request.query.limit) : 10,
+      name: request.query.name
+    };
+
+    return getClients(queryString)
       .then(savedItems => reply.code(200).send(savedItems))
       .catch(error => {
         return reply.code(error.code || 500).send(error);

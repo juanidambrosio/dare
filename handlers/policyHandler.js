@@ -22,15 +22,16 @@ const getPolicyById = insuranceClient => async (id) => {
   }
 };
 
-const getPolicies = insuranceClient => async () => {
-  let items = getAllFromCache('p');
+const getPolicies = insuranceClient => async query => {
+  let items = getAllFromCache('p', query);
   if (_.isEmpty(items)) {
     items = await insuranceClient.executeEndpoint(
       insuranceClient.getPolicies
     );
     saveInCache(items, 'p');
   }
-  return removeProperties(items, ['clientId']);
+  const paginatedPolicies = items.slice(0, query.limit);
+  return removeProperties(paginatedPolicies, ['clientId']);
 };
 
 module.exports = insuranceClient => {

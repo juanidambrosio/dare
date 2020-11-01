@@ -16,7 +16,11 @@ async function routes(fastify) {
   });
 
   fastify.get('/policies', async (request, reply) => {
-    return getPolicies()
+    const queryString = {
+      limit: request.query.limit ? Number(request.query.limit) : 10
+    };
+
+    return getPolicies(queryString)
       .then(savedItems => reply.code(200).send(savedItems))
       .catch(error => {
         return reply.code(error.code || 500).send(error);

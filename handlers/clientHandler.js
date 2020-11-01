@@ -9,22 +9,18 @@ const _ = require('lodash');
 
 const getClientById = insuranceClient => async (id) => {
   let item = getByIdFromCache(id, 'c');
-  if (item) {
-    return mapClients([item]);
-  }
-  else {
+  if (!item) {
     const items = await insuranceClient.executeEndpoint(
       insuranceClient.getClients
     );
     item = items.find(item => item.id === id);
     saveInCache(items, 'c');
-    return item ? mapClients([item]) : createError(404);
   }
+  return item ? mapClients([item]) : createError(404);
 };
 
 const getClients = insuranceClient => async query => {
-
-  let items = getAllFromCache('c', query);
+  let items = getAllFromCache('c');
   if (_.isEmpty(items)) {
     items = await insuranceClient.executeEndpoint(
       insuranceClient.getClients
@@ -44,6 +40,18 @@ const applyFilters = (items, query) => {
   return itemsAfterNameFilter.slice(0, limit);
 };
 
+const getClientPolicies = insuranceClient => async id => {
+  let item = getByIdFromCache(id, 'c');
+  if (!item) {
+    const items = await insuranceClient.executeEndpoint(
+      insuranceClient.getClients
+    );
+    item = items.find(item => item.id === id);
+    saveInCache(items, 'c');
+  }
+  return item ? mapClientPolicies(item) : createError(404);
+};
+
 const mapClients = items => {
   return items.map(item => {
     return {
@@ -52,22 +60,8 @@ const mapClients = items => {
         item.policies,
         ['email', 'installmentPayment', 'clientId']
       )
-    };});
-};
-
-const getClientPolicies = insuranceClient => async id => {
-  let item = getByIdFromCache(id, 'c');
-  if (item) {
-    return mapClientPolicies(item);
-  }
-  else {
-    const items = await insuranceClient.executeEndpoint(
-      insuranceClient.getClients
-    );
-    item = items.find(item => item.id === id);
-    saveInCache(items, 'c');
-    return item ? mapClientPolicies(item) : createError(404);
-  }
+    };
+  });
 };
 
 const mapClientPolicies = item => {

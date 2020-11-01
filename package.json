@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node server.js",
     "debug": "node --inspect-brk server.js",
-    "test": "jest"
+    "test": "jest --coverage"
   },
   "repository": {
     "type": "git",

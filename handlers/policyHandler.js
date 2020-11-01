@@ -23,7 +23,7 @@ const getPolicyById = insuranceClient => async (id) => {
 };
 
 const getPolicies = insuranceClient => async query => {
-  let items = getAllFromCache('p', query);
+  let items = getAllFromCache('p');
   if (_.isEmpty(items)) {
     items = await insuranceClient.executeEndpoint(
       insuranceClient.getPolicies

@@ -117,6 +117,27 @@ const policies = [
   }
 ];
 
+const mappedPolicies = [
+  {
+    id: 'p1',
+    email: 'a@a.com',
+    installmentPayment: 'installment payment',
+    amountInsured: '100'
+  },
+  {
+    id: 'p2',
+    email: 'b@b.com',
+    installmentPayment: 'installment payment',
+    amountInsured: '100'
+  },
+  {
+    id: 'p3',
+    email: 'c@c.com',
+    installmentPayment: 'installment payment',
+    amountInsured: '100'
+  }
+];
+
 const mappedPoliciesId1 = [
   {
     id: 'p1',
@@ -136,6 +157,7 @@ module.exports = {
   mappedClients,
   mappedClientId1,
   policies,
+  mappedPolicies,
   mappedPoliciesId1,
   queryString
 };

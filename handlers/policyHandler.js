@@ -9,17 +9,14 @@ const _ = require('lodash');
 
 const getPolicyById = insuranceClient => async (id) => {
   let item = getByIdFromCache(id, 'p');
-  if (item) {
-    return removeProperties([item], ['clientId']);
-  }
-  else {
-    const { data } = await insuranceClient.executeEndpoint(
+  if (!item) {
+    const items = await insuranceClient.executeEndpoint(
       insuranceClient.getPolicies
     );
-    item = data.find(item => item.id === id);
-    saveInCache(data, 'p');
-    return item ? removeProperties([item], ['clientId']) : createError(404);
+    item = items.find(item => item.id === id);
+    saveInCache(items, 'p');
   }
+  return item ? removeProperties([item], ['clientId']) : createError(404);
 };
 
 const getPolicies = insuranceClient => async query => {

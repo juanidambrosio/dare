@@ -13,8 +13,8 @@ async function routes(fastify) {
     if (config.jwt_enabled) {
       try {
         await request.jwtVerify();
-      } catch (err) {
-        reply.code(401).send(err);
+      } catch (error) {
+        reply.code(401).send({code: 401, message: 'Unauthorized' });
       }
     }
   });

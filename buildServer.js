@@ -1,13 +1,10 @@
-const config = require('./config/config');
-
 const buildServer = () => {
   const fastify = require('fastify')({
     logger: true
   });
 
-  fastify.register(require('fastify-auth0-verify'), {
-    domain: config.authprovider.domain,
-    secret: config.authprovider.secret
+  fastify.register(require('fastify-jwt'), {
+    secret: require('./config/config').secret
   });
 
   fastify.register(require('./routes/policyRoutes'),

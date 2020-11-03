@@ -19,16 +19,7 @@ const mapClients = (clients, policies) => {
   });
 };
 
-const mapAuthResponse = authResponse => {
-  return {
-    token: authResponse.access_token,
-    type: authResponse.token_type,
-    expires_in: authResponse.expires_in
-  };
-};
-
 module.exports = {
   removeProperties,
-  mapClients,
-  mapAuthResponse
+  mapClients
 };

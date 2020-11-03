@@ -57,23 +57,9 @@ const normalizedClients = [
   }
 ];
 
-const authResponse = {
-  access_token: '123456',
-  token_type: 'Bearer',
-  expires_in: 86400
-};
-
-const normalizedAuthResponse = {
-  token: '123456',
-  type: 'Bearer',
-  expires_in: 86400
-};
-
 module.exports = {
   policies,
   clients,
   normalizedPolicies,
-  normalizedClients,
-  authResponse,
-  normalizedAuthResponse
+  normalizedClients
 };

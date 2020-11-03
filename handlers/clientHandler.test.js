@@ -5,7 +5,7 @@ const {
   mappedClientId1,
   mappedPoliciesId1,
   queryString
-} = require('./mocks/data');
+} = require('../mocks/data');
 const _ = require('lodash');
 
 describe('client handler should', () => {

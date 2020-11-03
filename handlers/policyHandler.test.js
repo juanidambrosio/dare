@@ -3,7 +3,7 @@ const {
   policies,
   mappedPolicies,
   mappedPoliciesId1
-} = require('./mocks/data');
+} = require('../mocks/data');
 const _ = require('lodash');
 
 describe('policy handler should', () => {

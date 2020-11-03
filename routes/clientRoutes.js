@@ -4,15 +4,18 @@ const {
   getClientById,
   getClientPolicies
 } = require('../handlers/clientHandler')(insuranceClient);
+const config = require('../config/config');
 
 async function routes(fastify) {
   insuranceClient.createInstance();
 
   fastify.addHook('onRequest', async (request, reply) => {
-    try {
-      await request.jwtVerify();
-    } catch (err) {
-      reply.code(401).send(err);
+    if (config.jwt_enabled) {
+      try {
+        await request.jwtVerify();
+      } catch (err) {
+        reply.code(401).send(err);
+      }
     }
   });
 

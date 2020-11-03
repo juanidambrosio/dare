@@ -31,11 +31,35 @@ const getClientIdPolicies = fastify => async id => {
   };
 };
 
+const getPolicies = async fastify => {
+  const reply = await fastify.inject({
+    method: 'GET',
+    url: 'api/v1/policies'
+  });
+  return {
+    statusCode: reply.statusCode,
+    response: getResponse(reply, [])
+  };
+};
+
+const getPolicyId = fastify => async id => {
+  const reply = await fastify.inject({
+    method: 'GET',
+    url: `api/v1/policies/${id}`
+  });
+  return {
+    statusCode: reply.statusCode,
+    response: getResponse(reply, [])
+  };
+};
+
 const getResponse = (reply, defaultValue) =>
   reply.payload ? JSON.parse(reply.payload) : defaultValue;
 
 module.exports = {
   getClients,
   getClientId,
-  getClientIdPolicies
+  getClientIdPolicies,
+  getPolicies,
+  getPolicyId
 };

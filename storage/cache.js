@@ -2,9 +2,9 @@ const NodeCache = require('node-cache');
 const cache = new NodeCache();
 
 const saveInCache = (items, entity) => {
-  if (items) {
-    items.forEach(item => {
-      cache.set(entity + item.id, item, 86400);
+  if (items.items) {
+    items.items.forEach(item => {
+      cache.set(entity + item.id, item, items.expires);
     });
   }
   return items;

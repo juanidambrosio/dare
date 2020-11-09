@@ -10,11 +10,9 @@ const _ = require('lodash');
 const getClientById = insuranceClient => async (id) => {
   let item = getByIdFromCache(id, 'c');
   if (!item) {
-    const items = await insuranceClient.executeEndpoint(
-      insuranceClient.getClients
-    );
-    item = items.find(item => item.id === id);
-    saveInCache(items, 'c');
+    const clients = await insuranceClient.getClients();
+    item = clients.items.find(item => item.id === id);
+    saveInCache(clients, 'c');
   }
   return item ? mapClients([item]) : createError(404);
 };
@@ -22,10 +20,9 @@ const getClientById = insuranceClient => async (id) => {
 const getClients = insuranceClient => async query => {
   let items = getAllFromCache('c');
   if (_.isEmpty(items)) {
-    items = await insuranceClient.executeEndpoint(
-      insuranceClient.getClients
-    );
-    saveInCache(items, 'c');
+    const clients = await insuranceClient.getClients();
+    items = clients.items;
+    saveInCache(clients, 'c');
   }
   const paginatedClients = applyFilters(items, query);
   return mapClients(paginatedClients);
@@ -43,11 +40,10 @@ const applyFilters = (items, query) => {
 const getClientPolicies = insuranceClient => async id => {
   let item = getByIdFromCache(id, 'c');
   if (!item) {
-    const items = await insuranceClient.executeEndpoint(
-      insuranceClient.getClients
-    );
+    const clients = await insuranceClient.getClients();
+    items = clients.items;
     item = items.find(item => item.id === id);
-    saveInCache(items, 'c');
+    saveInCache(clients, 'c');
   }
   return item ? mapClientPolicies(item) : createError(404);
 };

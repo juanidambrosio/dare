@@ -6,33 +6,27 @@ const { mapClients } = require('../helpers/normalizer');
 
 let instance;
 
-const createInstance = () => {
-  instance = axios.create({
+createInstance = () => {
+  instance = !instance ? axios.create({
     baseURL: config.base_api_url,
     timeout: 5000
-  });
+  }) : instance;
 };
 
 const executeEndpoint = async (endpointFn, retries = 3) => {
-  let token, response;
   try {
-    response = await endpointFn();
+    return await endpointFn();
   }
   catch (error) {
     if (error.response.status === 401) {
-      token = await login();
+      const token = await login();
       instance.defaults.headers.common['Authorization'] = `Bearer ${token}`;
     }
   }
-  finally {
-    if (response) {
-      return response;
-    }
-    else if (!response && retries > 0){
-      return await executeEndpoint(endpointFn, retries - 1);
-    }
-    else createError(401);
+  if (retries > 0) {
+    return await executeEndpoint(endpointFn, retries - 1);
   }
+  createError(401);
 };
 
 const login = async () => {
@@ -45,19 +39,37 @@ const login = async () => {
 };
 
 const getPolicies = async () => {
-  const { data } = await instance.get('/policies');
-  return data;
+  const { data, headers } = await instance.get('/policies');
+  return {
+    items: data,
+    expires: getExpirationDate(
+      headers.date,
+      headers.expires
+    )};
 };
 
 const getClients = async () => {
-  const clients = await instance.get('/clients');
-  const policies = await instance.get('/policies');
-  return mapClients(clients.data, policies.data);
+  const { data, headers } = await instance.get('/clients');
+  const { data: policiesData } = await instance.get('/policies');
+  const mappedClients = mapClients(data, policiesData);
+  return {
+    items: mappedClients,
+    expires: getExpirationDate(
+      headers.date,
+      headers.expires
+    )};
 };
 
+const getExpirationDate = (requestedDate, expirationDate) => {
+  return (
+    (new Date(expirationDate).getTime() -
+    new Date(requestedDate).getTime()) / 1000
+  );
+};
+
+createInstance();
+
 module.exports = {
-  createInstance,
-  executeEndpoint,
-  getPolicies,
-  getClients
+  getPolicies: () => executeEndpoint(getPolicies),
+  getClients: () => executeEndpoint(getClients)
 };

@@ -17,10 +17,11 @@ describe('client handler should', () => {
   };
 
   const mockInsuranceClient = {
-    executeEndpoint: jest.fn()
+    getClients: jest.fn()
   };
 
   const sut = require('./clientHandler')(mockInsuranceClient);
+  const clientsResponse = { items: clients, expires: 300 };
 
   afterEach(() => {
     jest.clearAllMocks();
@@ -32,19 +33,19 @@ describe('client handler should', () => {
   describe('verify for getClients function', () => {
     test('returns clients from external api filtered by name and save all in cache', async () => {
       mockCache.getAllFromCache.mockReturnValueOnce([]);
-      mockInsuranceClient.executeEndpoint.mockResolvedValueOnce(clients);
+      mockInsuranceClient.getClients.mockResolvedValueOnce(clientsResponse);
       const response = await sut.getClients(queryString);
       expect(mockCache.getAllFromCache).toHaveBeenCalledWith('c');
-      expect(mockCache.saveInCache).toHaveBeenCalledWith(clients, 'c');
+      expect(mockCache.saveInCache).toHaveBeenCalledWith(clientsResponse, 'c');
       expect(response).toEqual(mappedClientId1);
     });
 
     test('returns clients from external api filtered with limit and save all in cache', async () => {
       mockCache.getAllFromCache.mockReturnValueOnce([]);
-      mockInsuranceClient.executeEndpoint.mockResolvedValueOnce(clients);
+      mockInsuranceClient.getClients.mockResolvedValueOnce(clientsResponse);
       const response = await sut.getClients({ limit: 2 });
       expect(mockCache.getAllFromCache).toHaveBeenCalledWith('c');
-      expect(mockCache.saveInCache).toHaveBeenCalledWith(clients, 'c');
+      expect(mockCache.saveInCache).toHaveBeenCalledWith(clientsResponse, 'c');
       expect(response).toEqual([ ..._.take(mappedClients, 2) ]);
     });
 
@@ -52,7 +53,7 @@ describe('client handler should', () => {
       mockCache.getAllFromCache.mockReturnValueOnce(clients);
       const responseCache = await sut.getClients({ limit: 10 });
       expect(mockCache.getAllFromCache).toHaveBeenCalledWith('c');
-      expect(mockInsuranceClient.executeEndpoint).not.toHaveBeenCalled();
+      expect(mockInsuranceClient.getClients).not.toHaveBeenCalled();
       expect(mockCache.saveInCache).not.toHaveBeenCalled();
       expect(responseCache).toEqual(mappedClients);
     });
@@ -61,10 +62,10 @@ describe('client handler should', () => {
   describe('verify for getClientById function', () => {
     test('returns client by id and save in cache', async () => {
       mockCache.getByIdFromCache.mockReturnValueOnce(undefined);
-      mockInsuranceClient.executeEndpoint.mockResolvedValueOnce(clients);
+      mockInsuranceClient.getClients.mockResolvedValueOnce(clientsResponse);
       const response = await sut.getClientById('1');
       expect(mockCache.getByIdFromCache).toHaveBeenCalledWith('1', 'c');
-      expect(mockCache.saveInCache).toHaveBeenCalledWith(clients, 'c');
+      expect(mockCache.saveInCache).toHaveBeenCalledWith(clientsResponse, 'c');
       expect(response).toEqual(mappedClientId1);
     });
 
@@ -72,7 +73,7 @@ describe('client handler should', () => {
       mockCache.getByIdFromCache.mockReturnValueOnce(clients[0]);
       const response = await sut.getClientById('1');
       expect(mockCache.getByIdFromCache).toHaveBeenCalledWith('1', 'c');
-      expect(mockInsuranceClient.executeEndpoint).not.toHaveBeenCalled();
+      expect(mockInsuranceClient.getClients).not.toHaveBeenCalled();
       expect(mockCache.saveInCache).not.toHaveBeenCalled();
       expect(response).toEqual(mappedClientId1);
     });
@@ -80,7 +81,7 @@ describe('client handler should', () => {
     test('throws 404 error as id does not exist', async () => {
       let thrownError;
       mockCache.getByIdFromCache.mockReturnValueOnce(undefined);
-      mockInsuranceClient.executeEndpoint.mockResolvedValueOnce(clients);
+      mockInsuranceClient.getClients.mockResolvedValueOnce(clientsResponse);
       try {
         await sut.getClientById('4');
       }
@@ -88,7 +89,7 @@ describe('client handler should', () => {
         thrownError = error;
       }
       expect(mockCache.getByIdFromCache).toHaveBeenCalledWith('4', 'c');
-      expect(mockCache.saveInCache).toHaveBeenCalledWith(clients, 'c');
+      expect(mockCache.saveInCache).toHaveBeenCalledWith(clientsResponse, 'c');
       expect(thrownError).toEqual({ code: 404, error: 'Not Found!' });
     });
   });
@@ -96,10 +97,10 @@ describe('client handler should', () => {
   describe('verify for getClientPolicies function', () => {
     test('returns client policies and save in cache', async () => {
       mockCache.getByIdFromCache.mockReturnValueOnce(undefined);
-      mockInsuranceClient.executeEndpoint.mockResolvedValueOnce(clients);
+      mockInsuranceClient.getClients.mockResolvedValueOnce(clientsResponse);
       const response = await sut.getClientPolicies('1');
       expect(mockCache.getByIdFromCache).toHaveBeenCalledWith('1', 'c');
-      expect(mockCache.saveInCache).toHaveBeenCalledWith(clients, 'c');
+      expect(mockCache.saveInCache).toHaveBeenCalledWith(clientsResponse, 'c');
       expect(response).toEqual(mappedPoliciesId1);
     });
 
@@ -107,7 +108,7 @@ describe('client handler should', () => {
       mockCache.getByIdFromCache.mockReturnValueOnce(clients[0]);
       const response = await sut.getClientPolicies('1');
       expect(mockCache.getByIdFromCache).toHaveBeenCalledWith('1', 'c');
-      expect(mockInsuranceClient.executeEndpoint).not.toHaveBeenCalled();
+      expect(mockInsuranceClient.getClients).not.toHaveBeenCalled();
       expect(mockCache.saveInCache).not.toHaveBeenCalled();
       expect(response).toEqual(mappedPoliciesId1);
     });
@@ -115,7 +116,7 @@ describe('client handler should', () => {
     test('throws 404 error as id does not exist', async () => {
       let thrownError;
       mockCache.getByIdFromCache.mockReturnValueOnce(undefined);
-      mockInsuranceClient.executeEndpoint.mockResolvedValueOnce(clients);
+      mockInsuranceClient.getClients.mockResolvedValueOnce(clientsResponse);
       try {
         await sut.getClientPolicies('4');
       }
@@ -123,7 +124,7 @@ describe('client handler should', () => {
         thrownError = error;
       }
       expect(mockCache.getByIdFromCache).toHaveBeenCalledWith('4', 'c');
-      expect(mockCache.saveInCache).toHaveBeenCalledWith(clients, 'c');
+      expect(mockCache.saveInCache).toHaveBeenCalledWith(clientsResponse, 'c');
       expect(thrownError).toEqual({ code: 404, error: 'Not Found!' });
     });
   });

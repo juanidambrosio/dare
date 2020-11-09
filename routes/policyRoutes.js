@@ -6,8 +6,6 @@ const {
 const config = require('../config/config');
 
 async function routes(fastify) {
-  insuranceClient.createInstance();
-
   fastify.addHook('onRequest', async (request, reply) => {
     if (config.jwt_enabled) {
       try {
